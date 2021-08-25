@@ -1,0 +1,56 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Check to see if we have an IP address. If we do when we should be discoverable
+# Note that there is no distinction made as to whether eth0 or wlan0 is the
+# interface creating the IP address so this doesn't guarantee that your
+# wireless interface is up, just that you have an IP address.
+
+_APIP="192.168.40.1"  # change this to whatever you've set in dnsmasq
+_WLAN_DEVICE="wlan0"  # change this to whatever your wlan device is (wlan0, etc)
+
+sleep 3
+
+_IP=$(hostname -I) || true
+if [ "$_IP" ]
+then
+    printf "At least one network interface is configured and is up\n"
+else
+    printf "No network interface has come up so let's configure the access point\n"
+
+    ifdown $_WLAN_DEVICE
+    sleep 3
+
+    printf "Bringing up hostapd\n"
+    service hostapd restart
+    sleep 3
+
+    printf "Configuring wlan interface\n"
+    ifconfig $_WLAN_DEVICE $_APIP
+    sleep 3
+
+    printf "Configuring DNSMasq\n"
+    service dnsmasq restart
+    sleep 3
+
+    printf "You should now have an access point\n"
+fi
+
+
+_IP=$(hostname -I) || true
+if [ "$_IP" ]
+then
+	printf "My IP address is %s\n" "$_IP"
+fi
+
+exit 0

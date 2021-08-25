@@ -1,0 +1,37 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          minecraft-server
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts the minecraft server
+# Description:       Used to start the minecraft server
+# 
+### END INIT INFO
+
+# Author: Andrew Fisher <ajfisher.td@gmail.com>
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Runs the minecraft server"
+NAME=minecraft
+SCRIPTNAME=/etc/init.d/$NAME
+SCREEN_NAME="minecraft_server"
+LOCATION=/srv/minecraft-server
+START_SCRIPT=$LOCATION/start.sh
+
+case "$1" in
+  start)
+	echo "Starting minecraft server"
+	screen -dmS "$SCREEN_NAME" $START_SCRIPT
+	;;
+  stop)
+	echo "Stopping minecraft server"
+	exec screen -S $SCREEN_NAME -p 0 -X stuff "`printf \"stop\r\"`"
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop}" >&2
+	exit 3
+	;;
+esac
+exit 0

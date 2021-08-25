@@ -1,0 +1,1 @@
+# Set up scripts for Minecraft server on Raspberry Pi
